@@ -8,11 +8,9 @@ from scipy.optimize import minimize, basinhopping, shgo, dual_annealing
 from scipy.integrate import odeint, solve_ivp
 from scipy.linalg import sqrtm
 
-#useful global variables, shouldn't be too inefficient
 global dimension
 global H
 
-#routine to generate loop hamiltonian + oracle state
 def generate_hamiltonian():
 
     laplacian = np.empty([dimension, dimension],dtype=complex)
@@ -53,11 +51,9 @@ def solve_schrodinger_equation(time):
         psi_t[i] = sh_solved.y[i, len(sh_solved.y[i])-1]
 
     normalization = np.dot(np.conj(psi_t), psi_t)
-#    print(st,'Normalization:',normalization.real,psi_t)
     print(st,linalg.norm(psi_t[0]),linalg.norm(psi_t[1]),linalg.norm(psi_t[2]))#,normalization)
     return psi_t,normalization.real
-    #return normalization.real
-
+    
 dimension = 3
 H=generate_hamiltonian()
 print('pseudo H')
