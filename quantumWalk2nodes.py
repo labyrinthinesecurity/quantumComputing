@@ -1,0 +1,90 @@
+#!/usr/bin/python3
+import sys
+import time
+import numpy as np
+from scipy import linalg
+from scipy.optimize import minimize, basinhopping, shgo, dual_annealing
+from scipy.integrate import odeint, solve_ivp
+from scipy.linalg import sqrtm
+
+global dimension
+global H
+
+def generate_hamiltonian():
+
+    laplacian = np.empty([dimension, dimension],dtype=complex)
+    laplacian.fill(0)
+
+    laplacian[0,0]=1
+    laplacian[1,0]=-1
+    hamiltonian=laplacian
+    return hamiltonian
+
+def schrodinger_equation(t, y):
+    derivs = []
+    psi = 0
+    for i in range(dimension):
+        for j in range(dimension):
+            psi += H[i,j]*y[j]
+        derivs.append(-1j*psi)
+        psi = 0
+
+    return derivs
+
+def solve_schrodinger_equation(time):
+
+    y0 = np.empty(dimension, dtype=complex)
+    y0.fill(1/(np.sqrt(dimension)))
+
+    sh_solved = solve_ivp(schrodinger_equation, [0., time], y0, method='RK45')
+    psi_t = np.empty(dimension,dtype=complex)
+    for i in range(dimension):
+        psi_t[i] = sh_solved.y[i, len(sh_solved.y[i])-1]
+
+    normalization = np.dot(np.conj(psi_t), psi_t)
+    print(str(st)+";"+str(linalg.norm(psi_t[0]))+';'+str(linalg.norm(psi_t[1])))#,normalization)
+    return psi_t,normalization.real
+
+dimension = 2
+H=generate_hamiltonian()
+print('pseudo H')
+print(H)
+H=H.transpose()
+evals,evecs=linalg.eig(H)
+print("eigenvalues",evals)
+print("eigenvectors")
+for ev in evecs:
+  print("vec",ev)
+i=0
+zz=np.empty([dimension,dimension],dtype=np.double)
+zz.fill(0)
+phi=[]
+for aD in range(0,dimension):
+  aPhi=np.empty([dimension])
+  aPhi.fill(0)
+  aPhi[0]=evecs[0][aD]
+  aPhi[1]=evecs[1][aD]
+  phi.append(aPhi)
+  zz=zz+np.outer(aPhi,aPhi)
+print('PHI')
+for ap in phi:
+  print("..",ap)
+print('NU square')
+print(zz)
+nu=sqrtm(zz)
+print('NU')
+print(nu)
+nuInv=linalg.inv(nu)
+print('NU inv')
+print(nuInv)
+print("nu*nuInv")
+print(nu.dot(nuInv))
+H=H.transpose()
+H=nu.dot(H.dot(nuInv))
+print('hermician H')
+print(H)
+print(' ')
+
+for i in range(0,63):
+  st=float(i)/float(10)
+  rez,norm=solve_schrodinger_equation(st)
