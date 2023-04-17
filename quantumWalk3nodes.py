@@ -50,9 +50,9 @@ def solve_schrodinger_equation(time):
     for i in range(dimension):
         psi_t[i] = sh_solved.y[i, len(sh_solved.y[i])-1]
 
+    sigma=linalg.norm(psi_t[0])+linalg.norm(psi_t[1])+linalg.norm(psi_t[2])
     normalization = np.dot(np.conj(psi_t), psi_t)
-    print(st,linalg.norm(psi_t[0]),linalg.norm(psi_t[1]),linalg.norm(psi_t[2]))#,normalization)
-    return psi_t,normalization.real
+    print(st,linalg.norm(psi_t[0])/sigma,linalg.norm(psi_t[1])/sigma,linalg.norm(psi_t[2])/sigma)
     
 dimension = 3
 H=generate_hamiltonian().real
