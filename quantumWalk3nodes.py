@@ -55,36 +55,19 @@ def solve_schrodinger_equation(time):
     return psi_t,normalization.real
     
 dimension = 3
-H=generate_hamiltonian()
-print('pseudo H')
+H=generate_hamiltonian().real
 print(H)
-H=H.transpose()
-evals,evecs=linalg.eig(H)
-print("eigenvalues",evals)
-print("eigenvectors")
-for ev in evecs:
-  print("vec",ev)
-i=0
-zz=np.empty([dimension,dimension],dtype=np.double)
-zz.fill(0)
-phi=[]
-for aD in range(0,dimension):
-  aPhi=np.empty([3])
-  aPhi.fill(0)
-  aPhi[0]=evecs[0][aD]
-  aPhi[1]=evecs[1][aD]
-  aPhi[2]=evecs[2][aD]
-  phi.append(aPhi)
-  zz=zz+np.outer(aPhi,aPhi)
-print('PHI')
-for ap in phi:
-  print("..",ap)
-print(zz)
-nu=sqrtm(zz)
+_,eigenvectors=linalg.eig(H)
+print("!!",eigenvectors,"!!")
+result = np.zeros((dimension, dimension))
+for i in range(eigenvectors.shape[1]):
+  outer_product = np.outer(eigenvectors[:, i], eigenvectors[:, i])
+  result += outer_product
+nu=sqrtm(result)
 nuInv=linalg.inv(nu)
 H=H.transpose()
 H=nu.dot(H.dot(nuInv))
 print(H)
-for i in range(0,50):
+for i in range(0,100):
   st=float(i)/float(10)
   rez,norm=solve_schrodinger_equation(st)
